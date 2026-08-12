@@ -4,7 +4,7 @@ A responsive personal portfolio website built with React and Vite to showcase my
 
 The main purpose of this project was to build the visual and user-facing side of a web application while practicing component-based development, reusable UI design, semantic HTML, accessibility, responsive layouts, form handling, and frontend security awareness.
 
-# 3. Technologies Used
+# 2. Technologies Used
 
 | Technology | Purpose |
 |------------|---------|
@@ -16,7 +16,7 @@ The main purpose of this project was to build the visual and user-facing side of
 | Git | Version control and tracking changes |
 | GitHub | Repository management and code sharing |
 
-# 4. Project Structure
+# 3. Project Structure
 
 ```text
 portfolio/
@@ -51,7 +51,7 @@ portfolio/
 └── README.md
 ```
 
-# 5. Component Architecture
+# 4. Component Architecture
 
 I divided the portfolio into separate React components based on their responsibilities.
 
@@ -99,7 +99,7 @@ It would also make it harder to modify one specific section without working thro
 Therefore, I chose a component-based structure where each component has a specific responsibility.
 
 
-# 6. App.jsx — Application Composition
+# 5. App.jsx — Application Composition
 
 `App.jsx` is the main application component that brings together the major sections of the portfolio. It imports the individual components and renders them in the order in which they should appear on the page.
 
@@ -142,7 +142,7 @@ I could have placed all of the portfolio markup directly inside `App.jsx`. Howev
 
 I therefore used `App.jsx` as the composition layer and kept individual responsibilities inside separate components. This approach makes the codebase more maintainable, scalable, and easier to collaborate on.
 
-# 7. Header Component
+# 6. Header Component
 
 The `Header.jsx` component contains the main navigation area of the portfolio.
 
@@ -181,7 +181,7 @@ However, this portfolio is designed as a single-page website, so separate routes
 
 ---
 
-# 8. Home Component
+# 7. Home Component
 
 The `Home.jsx` component contains the main introductory content of the portfolio. It includes three major sections:
 
@@ -222,7 +222,7 @@ This allows the navigation system to link directly to each section while keeping
 
 ---
 
-# 9. Projects Component
+# 8. Projects Component
 
 The `Projects.jsx` component displays the projects included in my portfolio. It contains project information and passes that information to the reusable `ProjectCard` component.
 
@@ -265,7 +265,7 @@ However, these components would contain almost the same structure and would resu
 
 ---
 
-# 10. ProjectCard Component
+# 9. ProjectCard Component
 
 The `ProjectCard.jsx` component is a reusable component used to display an individual project. Instead of creating the complete project-card markup multiple times, I created one component that receives project-specific information through props.
 
@@ -314,7 +314,7 @@ Using `ProjectCard` means that if I want to change the design of all project car
 
 ---
 
-# 11. Experience Component
+# 10. Experience Component
 
 The `Experience.jsx` component displays my professional internship experience.
 
@@ -361,7 +361,7 @@ Using structured cards, headings, and lists makes the professional experience ea
 
 ---
 
-# 12. Contact Component
+# 11. Contact Component
 
 The `Contact.jsx` component provides a contact form that allows visitors to enter their information and message.
 
@@ -426,7 +426,7 @@ When a real backend endpoint is connected, React state and event handlers can be
 
 ---
 
-# 13. Footer Component
+# 12. Footer Component
 
 The `Footer.jsx` component contains the bottom section of the portfolio. It provides additional navigation, personal branding, social links, and copyright information.
 
