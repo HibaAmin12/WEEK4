@@ -1,265 +1,209 @@
-import { createContext, useContext, useState } from "react";
-
-import { loginUser } from "../services/auth";
-
-
 // ==========================================================
 // Authentication Context
 // ==========================================================
 //
-// This context stores authentication information
-// that is required by different components.
+// This context manages authentication for the entire
+// React application.
 //
-// It provides:
-// 1. JWT token
+// It stores:
+// 1. JWT access token
 // 2. User role
 // 3. Login function
 // 4. Logout function
 // 5. Authentication status
 // ==========================================================
 
+import {
+  createContext,
+  useContext,
+  useState,
+} from "react";
+
+import { loginUser } from "../services/auth";
+
+// ==========================================================
+// Create Authentication Context
+// ==========================================================
 
 const AuthContext = createContext(null);
 
+// ==========================================================
+// Decode JWT Payload
+// ==========================================================
+//
+// I am decoding the JWT payload to read information
+// such as the user's role.
+//
+// The JWT is already created by my FastAPI backend.
+// I am only reading its payload here.
+// ==========================================================
+
+function getRoleFromToken(token) {
+  if (!token) {
+    return null;
+  }
+
+  try {
+    // A JWT contains three parts:
+    //
+    // header.payload.signature
+    //
+    // I only need the payload.
+    const payload = token.split(".")[1];
+
+    // Convert the Base64URL payload into
+    // a normal JavaScript object.
+    const decodedPayload = JSON.parse(
+      atob(
+        payload
+          .replace(/-/g, "+")
+          .replace(/_/g, "/")
+      )
+    );
+
+    // My FastAPI backend stores the role
+    // inside the JWT payload.
+    return decodedPayload.role || null;
+  } catch (error) {
+    // If the token cannot be decoded,
+    // I return null instead of crashing.
+    return null;
+  }
+}
 
 // ==========================================================
 // Auth Provider
 // ==========================================================
-//
-// AuthProvider wraps the application and makes
-// authentication information available to all
-// child components through useAuth().
-// ==========================================================
-
 
 export function AuthProvider({ children }) {
-
 
   // ========================================================
   // Token State
   // ========================================================
 
-
-  // Check localStorage when the application starts.
-  //
-  // If a token already exists, the user remains
-  // logged in even after refreshing the browser.
+  // I am checking localStorage when the application
+  // starts so that the user remains logged in
+  // after refreshing the browser.
   const [token, setToken] = useState(
     localStorage.getItem("access_token")
   );
-
 
   // ========================================================
   // Role State
   // ========================================================
 
-
-  // Store the role of the currently logged-in user.
-  //
-  // This is used by App.jsx to decide whether
-  // the Admin Panel button should be displayed.
+  // I am reading the user's role from the existing JWT.
   const [role, setRole] = useState(
-    localStorage.getItem("user_role")
+    getRoleFromToken(
+      localStorage.getItem("access_token")
+    )
   );
-
 
   // ========================================================
   // Login
   // ========================================================
 
-
   async function login(username, password) {
 
-
-    // ------------------------------------------------------
-    // Call Backend Login API
-    // ------------------------------------------------------
-
-
-    // loginUser sends username and password
-    // to the FastAPI login endpoint.
+    // I am calling the authentication service.
+    //
+    // This sends the username and password
+    // to my FastAPI backend.
     const data = await loginUser(
       username,
       password
     );
 
+    // I am extracting the JWT access token
+    // returned by FastAPI.
+    const accessToken = data.access_token;
 
-    // ------------------------------------------------------
-    // Extract JWT Token
-    // ------------------------------------------------------
-
-
-    const accessToken =
-      data.access_token;
-
-
-    // ------------------------------------------------------
-    // Extract User Role
-    // ------------------------------------------------------
-    //
-    // Our backend puts the role inside the JWT:
-    //
-    // {
-    //   "sub": user.id,
-    //   "role": user.role
-    // }
-    //
-    // We decode the JWT payload on the frontend
-    // to read the role.
-    // ------------------------------------------------------
-
-
-    const payload =
-      JSON.parse(
-        atob(
-          accessToken
-            .split(".")[1]
-            .replace(/-/g, "+")
-            .replace(/_/g, "/")
-        )
-      );
-
-
-    const userRole = payload.role;
-
-
-    // ------------------------------------------------------
-    // Update React State
-    // ------------------------------------------------------
-
-
+    // I am storing the token in React state.
     setToken(accessToken);
 
+    // I am extracting the user's role
+    // from the JWT.
+    const userRole = getRoleFromToken(
+      accessToken
+    );
+
+    // I am storing the role in React state.
     setRole(userRole);
 
-
-    // ------------------------------------------------------
-    // Store Authentication Information
-    // ------------------------------------------------------
-
-
-    // Store JWT so login survives page refresh.
+    // I am storing the token in localStorage
+    // so that authentication survives page refresh.
     localStorage.setItem(
       "access_token",
       accessToken
     );
 
-
-    // Store role so the frontend can restore
-    // the role after refreshing the browser.
-    localStorage.setItem(
-      "user_role",
-      userRole
-    );
-
-
-    // Return login response.
+    // Return the login response.
     return data;
   }
-
 
   // ========================================================
   // Logout
   // ========================================================
 
-
   function logout() {
-
 
     // Remove token from React state.
     setToken(null);
 
-
     // Remove role from React state.
     setRole(null);
 
-
-    // Remove token from browser storage.
+    // Remove JWT from localStorage.
     localStorage.removeItem(
       "access_token"
     );
-
-
-    // Remove role from browser storage.
-    localStorage.removeItem(
-      "user_role"
-    );
   }
-
 
   // ========================================================
   // Context Value
   // ========================================================
 
-
   const value = {
-
-
-    // JWT access token
     token,
 
-
-    // Current user's role
     role,
 
-
-    // Login function
     login,
 
-
-    // Logout function
     logout,
 
-
-    // Authentication status
+    // If token exists, the user is authenticated.
     isAuthenticated: Boolean(token),
   };
-
 
   // ========================================================
   // Provider
   // ========================================================
 
-
   return (
-    <AuthContext.Provider
-      value={value}
-    >
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-
 // ==========================================================
-// useAuth Custom Hook
+// useAuth Hook
 // ==========================================================
-//
-// Components can use:
-//
-// const { token, role, login, logout } = useAuth();
-//
-// instead of directly accessing AuthContext.
-// ==========================================================
-
 
 export function useAuth() {
 
+  const context = useContext(
+    AuthContext
+  );
 
-  const context =
-    useContext(AuthContext);
-
-
-  // Make sure useAuth is used
+  // Make sure useAuth() is used
   // inside AuthProvider.
   if (!context) {
-
-
     throw new Error(
       "useAuth must be used inside AuthProvider"
     );
   }
-
 
   return context;
 }
