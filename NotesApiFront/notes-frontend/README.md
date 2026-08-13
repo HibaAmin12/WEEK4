@@ -1,44 +1,42 @@
-# Notes Management Frontend
+# 📝 Notes Management Frontend
 
-A responsive React frontend for the Notes Management application. It provides user authentication, note management, and seamless communication with the FastAPI backend through REST APIs.
-
-## 📋 Table of Contents
-
-- [Features](#features)
-- [Technologies](#technologies)
-- [Project Structure](#project-structure)
-- [File & Folder Descriptions](#file--folder-descriptions)
-- [Architecture](#architecture)
-- [API Integration](#api-integration)
-- [Authentication & Authorization](#authentication--authorization)
-- [Author](#author)
-- [Project Status](#project-status)
+A responsive React-based frontend for the Notes Management application. The frontend provides a user-friendly interface for authentication, creating notes, viewing notes, editing notes, deleting notes, and accessing admin functionality. It communicates with the FastAPI backend through REST APIs and uses JWT-based authentication for protected operations.
 
 ---
 
 ## ✨ Features
 
-- 🔐 User Authentication with JWT tokens
-- 📝 Create, Read, Update, Delete notes functionality
-- 🎨 Responsive and modern user interface
-- 👥 Role-based access control integration
-- ⚡ Fast performance with Vite build tool
-- 🐳 Docker containerization support
-- 🔄 Seamless backend integration
+- 🔐 User registration and login
+- 🎟️ JWT-based authentication
+- 👤 Role-based access control
+- 📝 Create notes
+- 📋 View personal notes
+- ✏️ Edit notes
+- 🗑️ Delete notes
+- 👨‍💼 Admin dashboard
+- 📊 Admin can view all notes
+- ⚠️ User-friendly error handling
+- ⏳ Loading states during API requests
+- 📱 Responsive user interface
+- 🐳 Docker support
+- 🔄 REST API integration with FastAPI backend
 
 ---
 
 ## 🛠️ Technologies
 
 | Technology | Purpose |
-|-----------|---------|
-| React | Frontend UI framework |
-| Vite | Modern build tool and development server |
-| JavaScript | Programming language |
-| CSS | Styling and layout |
-| REST API | Backend communication |
-| Docker | Application containerization |
-| Node.js | Runtime environment |
+|---|---|
+| React | Building the user interface |
+| JavaScript | Application logic |
+| Vite | Development server and build tool |
+| CSS | Styling and responsive layout |
+| REST API | Communication with FastAPI backend |
+| JWT | Authentication and authorization |
+| React Context API | Global authentication state |
+| Fetch API | Sending HTTP requests |
+| Docker | Frontend containerization |
+| Docker Compose | Managing the full application stack |
 
 ---
 
@@ -48,327 +46,652 @@ A responsive React frontend for the Notes Management application. It provides us
 notes-frontend/
 │
 ├── src/
+│   │
 │   ├── components/
-│   │   └── Reusable UI components
-│   │
-│   ├── pages/
-│   │   └── Application page components
-│   │
-│   ├── services/
-│   │   └── API communication functions
+│   │   └── Navbar.jsx
 │   │
 │   ├── context/
-│   │   └── React Context for state management
+│   │   └── AuthContext.jsx
+│   │
+│   ├── pages/
+│   │   ├── Admin.jsx
+│   │   ├── CreateNote.jsx
+│   │   ├── EditNote.jsx
+│   │   ├── Login.jsx
+│   │   ├── Notes.jsx
+│   │   └── Register.jsx
+│   │
+│   ├── services/
+│   │   ├── admin.js
+│   │   ├── api.js
+│   │   ├── auth.js
+│   │   └── notes.js
 │   │
 │   ├── App.jsx
 │   ├── main.jsx
 │   └── index.css
 │
 ├── public/
-│   └── Static assets
 │
+├── .env.example
 ├── Dockerfile
 ├── package.json
 ├── vite.config.js
-├── .env
-├── .env.example
-└── index.html
+├── index.html
+└── README.md
 ```
 
 ---
 
-## 🔗 Backend Integration
+## 📂 File & Folder Responsibilities
 
-This frontend is designed to work with the Notes API backend built using:
+### src/components/
 
-- FastAPI
-- SQLAlchemy
-- PostgreSQL
-- Alembic
-- JWT Authentication
-- Role-Based Access Control
+Contains reusable UI components.
 
-The backend provides the REST API while this project provides the user interface and client-side application logic.
+**Navbar.jsx**
 
----
+Provides navigation for authenticated users.
 
-## 📂 File & Folder Descriptions
-
-### `src/components/`
-
-Contains reusable UI components that are used across multiple pages. Components are kept separate from pages to maintain modularity and prevent code duplication. Examples include navigation bars, note cards, forms, buttons, modals, and headers.
-
-**Purpose**: Component reusability and modular design
+It allows users to:
+- Navigate to My Notes
+- Access Admin Dashboard when authorized
+- Logout from the application
 
 ---
 
-### `src/pages/`
+### src/pages/
 
-Contains complete page-level components that represent different screens in the application. Each page handles specific functionality and uses components from the `components/` folder. Common pages include Login, Register, Notes List, and individual Note views.
+Contains page-level React components.
 
-**Purpose**: Screen-level functionality and routing
+**Login.jsx**
 
----
+Handles user login.
 
-### `src/services/`
+It collects the username and password and calls the authentication context.
 
-Contains functions that handle all communication with the FastAPI backend. API calls are centralized in this folder to keep components clean and prevent code duplication.
+**Register.jsx**
 
-**Main files**:
-- `auth.js` - User authentication, registration, and login
-- `api.js` - Note operations (CRUD)
-- Additional service files for specific endpoints
+Handles new user registration.
 
-**Purpose**: Centralized API communication layer
+It validates the username and password before sending the data to the backend.
 
----
+**Notes.jsx**
 
-### `src/context/`
+Displays the notes belonging to the currently authenticated user.
 
-Manages shared application state using React Context API. Provides authentication information and other global state to components throughout the application without prop drilling.
+It supports:
+- Fetching notes
+- Editing notes
+- Deleting notes
+- Showing loading and error states
 
-**Purpose**: Global state management
+**CreateNote.jsx**
 
----
+Provides a form for creating a new note.
 
-### `src/App.jsx`
+It validates the input and sends the note data to the backend through createNote().
 
-The root application component that defines the overall structure and navigation flow. Connects different pages, sets up routing, and manages top-level application logic.
+**EditNote.jsx**
 
-**Purpose**: Main application structure and routing
+Allows an existing note to be updated.
 
----
+The selected note is passed from App.jsx, and the updated data is sent to the backend.
 
-### `src/main.jsx`
+**Admin.jsx**
 
-The entry point of the React application. Renders the App component into the HTML root element and initializes the React application.
+Displays the administrator dashboard.
 
-**Purpose**: Application initialization
-
----
-
-### `src/index.css`
-
-Contains global styling rules applied across the entire application. Includes typography, colors, spacing, and layout rules for consistency.
-
-**Purpose**: Global styling and visual consistency
+It retrieves all notes through the protected admin API endpoint.
 
 ---
 
-### `package.json`
+## 🔐 Authentication Context
 
-Contains project metadata, dependencies, and npm scripts. Lists all required packages and provides commands for development and production builds.
+### src/context/AuthContext.jsx
 
-**Purpose**: Dependency management
+This file manages authentication state globally using React Context API.
+
+It stores:
+- JWT access token
+- User role
+- Login function
+- Logout function
+- Authentication status
+
+The JWT token is also stored in localStorage so that the user remains authenticated after refreshing the browser.
+
+**React Context API Benefits**
+
+Without Context API, the JWT token would have to be passed through multiple components using props. Context provides centralized authentication state that can be accessed using:
+
+```
+const { token, role, login, logout } = useAuth();
+```
 
 ---
 
-### `vite.config.js`
+## 🔌 Services
 
-Configuration file for Vite build tool. Defines development server settings, build options, and proxy configuration.
+The services/ directory contains all communication between the React frontend and FastAPI backend. This separates API logic from UI components.
 
-**Purpose**: Build tool configuration
+**services/auth.js**
+
+Handles authentication-related API requests:
+- User login
+- User registration
+
+Login sends credentials using the format expected by FastAPI's OAuth2 password authentication. Registration sends user information as JSON.
+
+**services/notes.js**
+
+Handles note-related API operations:
+- GET notes
+- POST note
+- PUT note
+- DELETE note
+
+All protected requests include the JWT token:
+
+```
+Authorization: Bearer <token>
+```
+
+**services/admin.js**
+
+Handles administrator-specific API requests.
+
+It communicates with:
+- GET /api/v1/admin/notes
+
+The JWT token is included in the Authorization header.
+
+**services/api.js**
+
+Contains general API-related functionality used by the frontend.
+
+The application keeps API communication inside the services layer rather than directly inside UI components.
 
 ---
 
-### `Dockerfile`
+## 🧠 Main Application
 
-Defines how the React frontend is packaged into a Docker image. Sets up Node.js environment, installs dependencies, and configures containerization.
+### src/App.jsx
 
-**Purpose**: Docker containerization
+App.jsx controls the main application flow.
+
+It decides which page should be displayed based on:
+- Authentication status
+- Current page
+- User role
+- Selected note
+
+The application uses React state for page navigation instead of React Router.
+
+Example:
+```
+const [page, setPage] = useState("login");
+```
+
+Possible application states include:
+- login
+- register
+- notes
+- create
+- edit
+- admin
 
 ---
 
-### `docker-compose.yml`
+## 🚀 Application Entry Point
 
-Centralized orchestration file for the entire application stack. Manages three services: React Frontend, FastAPI Backend, and PostgreSQL Database. Handles networking, port mapping, environment variables, and service dependencies.
+### src/main.jsx
 
-**Manages**:
-- Frontend service (port 5173)
-- Backend service (port 8000)
-- Database service (port 5432)
-- Service networking and dependencies
+This is the entry point of the React application.
+
+It renders App inside AuthProvider.
+
+```
+main.jsx
+   ↓
+AuthProvider
+   ↓
+App
+   ↓
+Pages / Components
+```
+
+AuthProvider wraps App to make authentication state available throughout the entire application.
+
+---
+
+## 🌐 Frontend ↔ Backend Interaction
+
+The frontend communicates with the FastAPI backend through REST APIs.
+
+The overall architecture is:
+
+```
+                    User
+                     │
+                     ▼
+              React Frontend
+                  (Vite)
+                     │
+                     │ HTTP / REST API
+                     ▼
+             FastAPI Backend
+                     │
+                     │ SQLAlchemy
+                     ▼
+              PostgreSQL DB
+```
+
+---
+
+## 🔄 API Request Flow
+
+When a user performs an action, the following process occurs:
+
+```
+User Action
+    │
+    ▼
+React Component
+    │
+    ▼
+Service Function
+    │
+    ▼
+Fetch API Request
+    │
+    ▼
+FastAPI Endpoint
+    │
+    ▼
+Backend Validation
+    │
+    ▼
+Database Operation
+    │
+    ▼
+JSON Response
+    │
+    ▼
+React State Update
+    │
+    ▼
+UI Re-render
+```
+
+For example, when creating a note:
+
+```
+CreateNote.jsx
+      │
+      ▼
+createNote()
+      │
+      ▼
+POST /api/v1/notes/
+      │
+      ▼
+FastAPI
+      │
+      ▼
+PostgreSQL
+      │
+      ▼
+Created Note
+      │
+      ▼
+React UI
+```
+
+---
+
+## 🔐 JWT Authentication Flow
+
+The application uses JWT authentication.
+
+**Login Flow**
+
+```
+1. User enters username/password
+              ↓
+2. Login.jsx calls AuthContext
+              ↓
+3. AuthContext calls loginUser()
+              ↓
+4. auth.js sends credentials to FastAPI
+              ↓
+5. FastAPI validates credentials
+              ↓
+6. Backend generates JWT
+              ↓
+7. Frontend receives access token
+              ↓
+8. Token is stored in localStorage
+              ↓
+9. Token is stored in React state
+```
+
+**Protected Requests**
+
+```
+React
+  │
+  ▼
+Service Function
+  │
+  ▼
+Authorization: Bearer <JWT>
+  │
+  ▼
+FastAPI
+  │
+  ▼
+JWT Validation
+  │
+  ▼
+Authorized Request
+```
+
+---
+
+## 👥 Role-Based Access Control
+
+The user's role is stored inside the JWT payload.
+
+The frontend reads the role from the token:
+
+```
+JWT
+ │
+ └── payload
+       │
+       └── role
+```
+
+The application supports role-based behavior such as:
+
+**User**
+- Access personal notes
+
+**Admin**
+- Access personal notes
+- Access Admin Dashboard
+
+The frontend hides/restricts admin functionality for normal users. However, authorization is ultimately enforced by the FastAPI backend, so frontend checks are only for user experience and navigation.
+
+---
+
+## 🔗 API Endpoints Used
+
+**Authentication**
+
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| POST | /api/v1/auth/register | Register a new user |
+| POST | /api/v1/auth/login | Login and receive JWT |
+
+**Notes**
+
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| GET | /api/v1/notes/ | Get user's notes |
+| POST | /api/v1/notes/ | Create a note |
+| PUT | /api/v1/notes/{id} | Update a note |
+| DELETE | /api/v1/notes/{id} | Delete a note |
+
+**Admin**
+
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| GET | /api/v1/admin/notes | Get all notes for admin |
+
+---
+
+## ⚙️ Environment Configuration
+
+The frontend backend URL is configured through a Vite environment variable.
+
+Create a .env file inside the frontend directory:
+
+```
+VITE_API_URL=http://localhost:8000
+```
+
+The application reads it using:
+
+```
+const API_URL = import.meta.env.VITE_API_URL;
+```
+
+It prevents the backend URL from being hardcoded throughout the application. Different environments can use different backend URLs:
+
+- Development → http://localhost:8000
+- Production → https://your-production-api
+
+---
+
+## 🔒 .env and .env.example
+
+The repository contains:
+
+**.env.example**
+
+```
+VITE_API_URL=http://localhost:8000
+```
+
+.env.example is safe to commit because it contains only a sample configuration. The actual .env file should not be committed when it contains private configuration.
+
+Note: Vite variables prefixed with VITE_ are available to frontend code, so they should never contain passwords, database credentials, JWT secrets, or other sensitive secrets.
+
+---
+
+## 🐳 Docker Setup
+
+The project uses Docker for containerization.
+
+The root-level docker-compose.yml is used as the centralized configuration file for the application stack.
+
+```
+Project Root
+│
+├── docker-compose.yml
+│
+├── Day4project/
+│   └── FastAPI Backend
+│
+└── notes-frontend/
+    ├── Dockerfile
+    └── React Frontend
+```
+
+**Why Docker Compose?**
+
+Docker Compose allows the frontend, backend, and database to be managed together.
+
+It centralizes:
+- Service configuration
+- Port mapping
 - Environment configuration
-- Volume persistence
-
-**Purpose**: Unified application orchestration
+- Service dependencies
+- Docker networking
+- Database persistence
 
 ---
 
-## 🏗️ Architecture
-
-### System Architecture
+## 🐳 Docker Architecture
 
 ```
-User Browser
-     ↓
-React Application (Vite)
-     ↓ (HTTP REST API)
-FastAPI Backend
-     ↓ (SQL Queries)
-PostgreSQL Database
+┌──────────────────────────┐
+│      React Frontend      │
+│        Port 5173         │
+└────────────┬─────────────┘
+             │
+             │ REST API
+             ▼
+┌──────────────────────────┐
+│     FastAPI Backend      │
+│        Port 8000         │
+└────────────┬─────────────┘
+             │
+             │ SQLAlchemy
+             ▼
+┌──────────────────────────┐
+│       PostgreSQL         │
+│        Port 5432         │
+└──────────────────────────┘
 ```
 
-### Frontend-Backend Communication
-
-The frontend communicates with the backend through REST API endpoints. All requests include JWT authentication tokens for secure access. The backend validates tokens and enforces role-based access control before processing requests.
-
-### Data Flow
-
-1. User interacts with React UI
-2. Component calls service function
-3. Service makes HTTP request to backend
-4. Backend processes request and queries database
-5. Backend returns JSON response
-6. Frontend updates React state
-7. Component re-renders with updated data
-
-### State Management Strategy
-
-- **Component State**: React Hooks (useState) for local component state
-- **Global State**: React Context for authentication and shared data
-- **Persistence**: JWT tokens stored in browser local storage
+All services are managed through the centralized docker-compose.yml.
 
 ---
 
-## 🔌 API Integration
+## ▶️ Running with Docker Compose
 
-### Backend API Connection
+From the project root:
 
-Frontend connects to FastAPI backend through HTTP REST API. All API communication is handled through the `src/services/` folder functions.
+```
+docker compose up --build
+```
 
-### API Endpoints
+To run containers in the background:
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/api/auth/register` | POST | User registration |
-| `/api/auth/login` | POST | User login and token generation |
-| `/api/auth/me` | GET | Get current user info |
-| `/api/notes` | GET | Retrieve all notes |
-| `/api/notes` | POST | Create new note |
-| `/api/notes/{id}` | GET | Get specific note |
-| `/api/notes/{id}` | PUT | Update note |
-| `/api/notes/{id}` | DELETE | Delete note |
+```
+docker compose up -d
+```
 
-### Request Format
+To stop the application:
 
-All API requests include:
-- `Content-Type: application/json` header
-- `Authorization: Bearer {token}` header for authenticated endpoints
-- JSON payload with required data
+```
+docker compose down
+```
 
-### Response Format
+To view logs:
 
-Backend responds with JSON containing:
-- Success status
-- Data or error messages
-- Appropriate HTTP status codes
+```
+docker compose logs -f
+```
 
 ---
 
-## 🔐 Authentication & Authorization
+## 🧩 Frontend Container
 
-### JWT Authentication
+The Dockerfile defines how the React frontend is packaged into a Docker image.
 
-Authentication flow:
-1. User submits login credentials
-2. Backend validates and generates JWT token
-3. Frontend stores token in local storage
-4. Token included in all subsequent API requests
-5. Backend validates token before processing
-
-### Role-Based Access Control
-
-Three user roles with different permissions:
-- **Admin**: Full access to all notes and user management
-- **User**: Access to personal notes only
-- **Viewer**: Read-only access to shared notes
-
-Access control enforced on both frontend and backend.
-
-### Token Management
-
-- Tokens stored in browser local storage
-- Automatically included in API request headers
-- Expire after configured time period
-- Users must re-login when token expires
-- Logout clears token from local storage
+It provides a consistent environment for:
+- Installing Node.js dependencies
+- Building/running the React application
+- Running the frontend inside a container
 
 ---
 
-## 🔄 Component Communication
+## 🏗️ Application Architecture
 
-Components communicate through:
-- **Props**: For parent-to-child communication
-- **Context API**: For global authentication state
-- **Service Functions**: For backend communication
-- **Event Handlers**: For user interactions
+The frontend follows a layered structure:
 
----
+```
+React UI
+   │
+   ├── Pages
+   │
+   ├── Components
+   │
+   └── Context
+          │
+          ▼
+      Services
+          │
+          ▼
+       REST API
+          │
+          ▼
+      FastAPI
+```
 
-## 📊 Frontend Features
+**Responsibilities**
 
-### Note Management
-- View all user notes
-- Create new notes
-- Edit existing notes
-- Delete notes
-- Search and filter functionality
-
-### User Interface
-- Responsive design for mobile and desktop
-- Intuitive navigation
-- Form validation
-- Error handling and user feedback
-- Loading states
-
-### Security
-- JWT token-based authentication
-- Protected routes for authenticated users
-- Secure token storage
-- HTTPS recommended for production
-
----
-
-## 🎯 Development Principles
-
-### Code Organization
-- Separation of concerns (components, services, context)
-- Reusable components to reduce duplication
-- Centralized API communication
-- Clean component hierarchy
-
-### Best Practices
-- Modular component design
-- Clean function naming
-- Proper error handling
-- State management separation
-- Context for global state
+- **Pages**: Handle user-facing screens and UI interactions.
+- **Components**: Contain reusable interface elements.
+- **Context**: Manages global authentication state.
+- **Services**: Handle communication with the backend.
+- **FastAPI**: Handles business logic, authentication, authorization, and database operations.
 
 ---
 
-## 🌐 Deployment Targets
+## 📊 State Management
 
-The application can be deployed to:
-- Vercel - Optimized for React
-- Netlify - Easy deployment
-- GitHub Pages - Static hosting
-- AWS S3 + CloudFront
-- Custom servers
-- Docker containers
+The application uses React Hooks and Context API.
+
+**useState**
+
+Used for local component state such as:
+- Form inputs
+- Loading state
+- Error messages
+- Notes
+- Selected note
+
+**useEffect**
+
+Used for operations that should happen when component state changes, such as fetching notes after authentication.
+
+**Context API**
+
+Used for global authentication state:
+- JWT Token
+- Role
+- Login
+- Logout
+- Authentication Status
 
 ---
 
-## 📚 Related Documentation
+## ⚠️ Error Handling
 
-- Backend: FastAPI with SQLAlchemy and PostgreSQL
-- Database: PostgreSQL with Alembic migrations
-- Authentication: JWT tokens with role-based access control
-- API: RESTful endpoints for note management
+The frontend checks HTTP responses using:
 
+```
+if (!response.ok)
+```
 
+FastAPI error messages are extracted from the response:
+
+```
+errorData.detail
+```
+
+This allows the frontend to display meaningful errors such as:
+- Invalid credentials
+- Authentication required
+- Note not found
+- Access denied
+
+Loading states are also displayed while API requests are being processed.
 
 ---
 
-**Version**: 1.0.0  
-**Last Updated**: August 2024
+## 📜 Available Scripts
+
+| Command | Purpose |
+|---------|---------|
+| npm run dev | Start development server |
+| npm run build | Create production build |
+| npm run preview | Preview production build |
+
+---
+
+## 🔒 Security Considerations
+
+- JWT is required for protected API requests.
+- Authorization headers use the Bearer token format.
+- Admin functionality is restricted based on user role.
+- Backend authorization remains the final security layer.
+- Sensitive secrets should not be stored in frontend environment variables.
+- .env.example contains only non-sensitive example configuration.
+
+---
