@@ -1,6 +1,10 @@
 // ==========================================================
 // Main Application Component
 // ==========================================================
+//
+// Controls authentication flow, page navigation, note editing,
+// and role-based access for the Notes application.
+// ==========================================================
 
 import { useEffect, useState } from "react";
 
@@ -10,45 +14,36 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Notes from "./pages/Notes";
 import CreateNote from "./pages/CreateNote";
+import EditNote from "./pages/EditNote";
 import Admin from "./pages/Admin";
 
 import Navbar from "./components/Navbar";
 
 
 // ==========================================================
-// Main App Component
+// App Component
 // ==========================================================
 
 function App() {
 
-  // ========================================================
-  // Authentication
-  // ========================================================
-
+  // Authentication context provides the JWT token
+  // and current user's role.
   const {
     token,
     role,
   } = useAuth();
 
 
-  // ========================================================
-  // Current Page
-  // ========================================================
-
+  // Tracks which application screen is currently displayed.
   const [page, setPage] = useState("login");
 
 
-  // ========================================================
-  // Edit Note State
-  // ========================================================
-
+  // Stores the note selected for editing.
   const [editNote, setEditNote] = useState(null);
 
 
-  // ========================================================
-  // After Login
-  // ========================================================
-
+  // After successful authentication, redirect
+  // the user to their notes workspace.
   useEffect(() => {
 
     if (token) {
@@ -59,14 +54,12 @@ function App() {
 
 
   // ========================================================
-  // Authentication Screens
+  // Authentication Flow
   // ========================================================
 
+  // Unauthenticated users can only access
+  // the Login and Register screens.
   if (!token) {
-
-    // ------------------------------------------------------
-    // Register Page
-    // ------------------------------------------------------
 
     if (page === "register") {
 
@@ -75,12 +68,9 @@ function App() {
           onLogin={() => setPage("login")}
         />
       );
+
     }
 
-
-    // ------------------------------------------------------
-    // Login Page
-    // ------------------------------------------------------
 
     return (
       <Login
@@ -91,11 +81,13 @@ function App() {
 
 
   // ========================================================
-  // Navigation Functions
+  // Navigation Handlers
   // ========================================================
 
   function handleNotes() {
 
+    // Clear any selected note before returning
+    // to the main notes workspace.
     setEditNote(null);
 
     setPage("notes");
@@ -104,6 +96,7 @@ function App() {
 
   function handleCreateNote() {
 
+    // Create mode should not contain an existing note.
     setEditNote(null);
 
     setPage("create");
@@ -112,9 +105,10 @@ function App() {
 
   function handleEditNote(note) {
 
+    // Store the selected note and open edit mode.
     setEditNote(note);
 
-    setPage("create");
+    setPage("edit");
   }
 
 
@@ -126,6 +120,8 @@ function App() {
   }
 
 
+  // Admin navigation is restricted to users
+  // with the admin role.
   function handleAdmin() {
 
     if (role === "admin") {
@@ -135,11 +131,13 @@ function App() {
 
 
   // ========================================================
-  // Admin Panel
+  // Admin Page
   // ========================================================
 
   if (page === "admin") {
 
+    // Prevent non-admin users from accessing
+    // the administrator interface.
     if (role !== "admin") {
 
       return (
@@ -183,7 +181,46 @@ function App() {
 
 
   // ========================================================
-  // Create / Edit Note
+  // Edit Note Page
+  // ========================================================
+
+  if (page === "edit" && editNote) {
+
+    return (
+      <div>
+
+        <Navbar
+          onNotes={handleNotes}
+          onAdmin={handleAdmin}
+        />
+
+        <EditNote
+          note={editNote}
+          token={token}
+
+          // Return to the notes workspace after
+          // successfully updating the note.
+          onUpdated={(updatedNote) => {
+
+            console.log(
+              "Updated note:",
+              updatedNote
+            );
+
+            setEditNote(null);
+            setPage("notes");
+          }}
+
+          onCancel={handleBackToNotes}
+        />
+
+      </div>
+    );
+  }
+
+
+  // ========================================================
+  // Create Note Page
   // ========================================================
 
   if (page === "create") {
@@ -197,7 +234,6 @@ function App() {
         />
 
         <CreateNote
-          editNote={editNote}
           onBack={handleBackToNotes}
         />
 
@@ -207,7 +243,7 @@ function App() {
 
 
   // ========================================================
-  // Notes Page
+  // Notes Workspace
   // ========================================================
 
   return (
@@ -229,7 +265,7 @@ function App() {
 
 
 // ==========================================================
-// Export App
+// Export
 // ==========================================================
 
 export default App;

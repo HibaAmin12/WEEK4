@@ -5,38 +5,51 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 
+// Handles user authentication through the AuthContext.
 function Login({ onRegister }) {
+
+  // Store login form values and request status.
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const { login } = useAuth();
 
+  // Validate credentials and submit the login request.
   async function handleSubmit(event) {
+
     event.preventDefault();
 
     setError("");
 
+    // Prevent submission when required fields are empty.
     if (!username.trim() || !password.trim()) {
+
       setError("Username and password are required.");
+
       return;
     }
 
     try {
+
       setLoading(true);
 
+      // Authentication is handled centrally by AuthContext.
       await login(
         username.trim(),
         password
       );
+
     } catch (err) {
+
       setError(
         err.message ||
         "Login failed. Please try again."
       );
+
     } finally {
+
       setLoading(false);
     }
   }
@@ -49,7 +62,9 @@ function Login({ onRegister }) {
 
       <div className="auth-card">
 
+        {/* Application branding */}
         <div className="auth-brand">
+
           <div className="auth-brand-icon">
             📝
           </div>
@@ -58,8 +73,10 @@ function Login({ onRegister }) {
             <strong>Notes</strong>
             <span>Workspace</span>
           </div>
+
         </div>
 
+        {/* Login page heading and description */}
         <div className="auth-header">
 
           <span className="auth-label">
@@ -79,6 +96,7 @@ function Login({ onRegister }) {
 
         </div>
 
+        {/* Display authentication or validation errors */}
         {error && (
           <div className="auth-error">
             <span>!</span>
@@ -86,6 +104,7 @@ function Login({ onRegister }) {
           </div>
         )}
 
+        {/* Login form */}
         <form
           className="auth-form"
           onSubmit={handleSubmit}
@@ -98,6 +117,7 @@ function Login({ onRegister }) {
             </label>
 
             <div className="auth-input-wrapper">
+
               <span>👤</span>
 
               <input
@@ -111,6 +131,7 @@ function Login({ onRegister }) {
                 autoComplete="username"
                 disabled={loading}
               />
+
             </div>
 
           </div>
@@ -122,6 +143,7 @@ function Login({ onRegister }) {
             </label>
 
             <div className="auth-input-wrapper">
+
               <span>🔒</span>
 
               <input
@@ -135,15 +157,18 @@ function Login({ onRegister }) {
                 autoComplete="current-password"
                 disabled={loading}
               />
+
             </div>
 
           </div>
 
+          {/* Submit login credentials */}
           <button
             type="submit"
             className="auth-primary-button"
             disabled={loading}
           >
+
             {loading ? (
               <>
                 <span className="button-spinner"></span>
@@ -155,10 +180,12 @@ function Login({ onRegister }) {
                 <span>→</span>
               </>
             )}
+
           </button>
 
         </form>
 
+        {/* Switch from login to registration */}
         <div className="auth-divider">
           <span>OR</span>
         </div>
@@ -179,6 +206,7 @@ function Login({ onRegister }) {
 
         </div>
 
+        {/* Indicate the authentication mechanism used by the application */}
         <div className="auth-security">
           <span>🔐</span>
           Secure authentication powered by JWT

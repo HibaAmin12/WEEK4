@@ -1,47 +1,21 @@
-// ==========================================================
-// Admin Service
-// ==========================================================
-//
-// This file contains all API communication related
-// to administrator functionality.
-//
-// The admin endpoints are protected by JWT authentication
-// and can only be accessed by users with the admin role.
-// ==========================================================
+// Provides API communication for administrator-specific operations.
+// Admin endpoints require a valid JWT with the appropriate role.
 
 
-// ==========================================================
-// Backend Base URL
-// ==========================================================
-
-// I am reading the FastAPI backend URL from
-// the Vite environment variable.
+// Base URL of the FastAPI backend.
 const API_URL = import.meta.env.VITE_API_URL;
 
 
-// ==========================================================
-// Get All Notes For Admin
-// ==========================================================
-//
-// This function calls:
-//
-// GET /api/v1/admin/notes
-//
-// The backend returns notes belonging to all users.
-//
-// The JWT token is sent in the Authorization header.
-// ==========================================================
-
+// Fetch all notes available to an administrator.
+// The JWT is included to authenticate and authorize the request.
 export async function getAllNotesForAdmin(token) {
 
-  // I am sending a GET request to the
-  // protected admin notes endpoint.
   const response = await fetch(
     `${API_URL}/api/v1/admin/notes`,
     {
       method: "GET",
 
-      // The backend requires JWT authentication.
+      // Authenticate the request using the user's JWT.
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -49,46 +23,30 @@ export async function getAllNotesForAdmin(token) {
   );
 
 
-  // ========================================================
-  // Error Handling
-  // ========================================================
-
-  // fetch() does not automatically throw errors
-  // for HTTP responses such as 401 or 403.
-  //
-  // Therefore, I manually check response.ok.
+  // Handle HTTP errors explicitly because fetch()
+  // does not reject promises for responses such as 401 or 403.
   if (!response.ok) {
 
-    // I am using a default error message.
     let errorMessage =
       `Failed to load admin notes (${response.status})`;
 
     try {
 
-      // I am trying to read the error returned
-      // by the FastAPI backend.
+      // Use the backend's detail message when available.
       const errorData = await response.json();
 
-      // FastAPI usually returns the actual
-      // error message inside "detail".
       errorMessage =
         errorData.detail || errorMessage;
 
     } catch {
-      // If the response does not contain JSON,
-      // I keep the default error message.
+      // Keep the default message when the response is not JSON.
     }
 
-    // I am throwing the error so that
-    // Admin.jsx can display it.
+    // Propagate the error to the Admin component.
     throw new Error(errorMessage);
   }
 
 
-  // ========================================================
-  // Return Notes
-  // ========================================================
-
-  // The FastAPI backend returns the notes as JSON.
+  // Return the parsed notes received from the backend.
   return response.json();
 }

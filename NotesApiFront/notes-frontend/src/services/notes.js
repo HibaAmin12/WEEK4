@@ -1,5 +1,19 @@
-// I am reading the base URL of my FastAPI backend
-// from the Vite environment variable.
+// ==========================================================
+// Notes API Service
+// ==========================================================
+//
+// Centralizes all note-related API requests.
+// Keeping API logic here keeps React components focused
+// on UI and state management.
+// ==========================================================
+
+
+// ==========================================================
+// Backend Configuration
+// ==========================================================
+
+// Backend URL is provided through the Vite environment
+// variable instead of being hardcoded.
 const API_URL = import.meta.env.VITE_API_URL;
 
 
@@ -9,15 +23,13 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 export async function getNotes(token) {
 
-  // I am sending a GET request to retrieve
-  // all notes belonging to the logged-in user.
+  // Fetch notes belonging to the authenticated user.
   const response = await fetch(
     `${API_URL}/api/v1/notes/`,
     {
       method: "GET",
 
-      // I am attaching the JWT token because
-      // my Notes API requires authentication.
+      // Notes endpoints require JWT authentication.
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -25,26 +37,22 @@ export async function getNotes(token) {
   );
 
 
-  // fetch() does not throw an error automatically
-  // for HTTP errors such as 401 or 404.
-  // Therefore, I check response.ok manually.
+  // Convert HTTP errors into JavaScript errors
+  // that can be handled by the UI.
   if (!response.ok) {
 
-    // I am reading the error returned by FastAPI.
     const errorData = await response.json();
 
-    // I am throwing the backend error message
-    // so the UI can display it.
     throw new Error(
-      errorData.detail || `Failed to load notes (${response.status})`
+      errorData.detail ||
+      `Failed to load notes (${response.status})`
     );
   }
 
 
-  // The backend returns the notes as JSON.
+  // Return the notes received from the backend.
   return response.json();
 }
-
 
 
 // ==========================================================
@@ -53,110 +61,102 @@ export async function getNotes(token) {
 
 export async function createNote(token, noteData) {
 
-  // I am sending a POST request to create
-  // a new note in the database.
+  // Send note data to the backend using POST.
   const response = await fetch(
     `${API_URL}/api/v1/notes/`,
     {
       method: "POST",
 
-      // I am sending both the JWT token
-      // and the JSON content type.
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
 
-      // I am converting the JavaScript object
-      // into JSON before sending it to FastAPI.
+      // Convert the note object into JSON.
       body: JSON.stringify(noteData),
     }
   );
 
 
-  // A successful create request returns HTTP 201.
-  // If the request fails, I handle the error here.
+  // Handle validation and authentication errors
+  // returned by the backend.
   if (!response.ok) {
 
-    // I am reading the error returned by FastAPI.
     const errorData = await response.json();
 
-    // I am throwing a meaningful error message.
     throw new Error(
-      errorData.detail || `Failed to create note (${response.status})`
+      errorData.detail ||
+      `Failed to create note (${response.status})`
     );
   }
 
 
-  // I am returning the newly created note.
+  // Return the newly created note.
   return response.json();
 }
-
 
 
 // ==========================================================
 // Update Note
 // ==========================================================
 
-export async function updateNote(token, noteId, noteData) {
+export async function updateNote(
+  token,
+  noteId,
+  noteData
+) {
 
-  // I am sending a PUT request to update
-  // an existing note using its ID.
+  // Update the selected note using its ID.
   const response = await fetch(
     `${API_URL}/api/v1/notes/${noteId}`,
     {
       method: "PUT",
 
-      // I am attaching the JWT token and
-      // telling FastAPI that I am sending JSON data.
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
 
-      // I am converting the updated note data
-      // into JSON before sending it.
+      // Send the updated note data as JSON.
       body: JSON.stringify(noteData),
     }
   );
 
 
-  // A successful update request returns HTTP 200.
-  // A missing note returns HTTP 404.
+  // Handle errors such as unauthorized access
+  // or a note that does not exist.
   if (!response.ok) {
 
-    // I am reading the error returned by FastAPI.
     const errorData = await response.json();
 
-    // I am throwing the backend error message
-    // instead of silently ignoring the error.
     throw new Error(
-      errorData.detail || `Failed to update note (${response.status})`
+      errorData.detail ||
+      `Failed to update note (${response.status})`
     );
   }
 
 
-  // The backend returns the updated note.
+  // Return the updated note.
   return response.json();
 }
-
 
 
 // ==========================================================
 // Delete Note
 // ==========================================================
 
-export async function deleteNote(token, noteId) {
+export async function deleteNote(
+  token,
+  noteId
+) {
 
-  // I am sending a DELETE request using
-  // the ID of the note I want to remove.
+  // Delete the selected note using its ID.
   const response = await fetch(
     `${API_URL}/api/v1/notes/${noteId}`,
     {
       method: "DELETE",
 
-      // I am attaching the JWT token because
-      // deleting a note requires authentication.
+      // Delete operation requires JWT authentication.
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -164,22 +164,19 @@ export async function deleteNote(token, noteId) {
   );
 
 
-  // My FastAPI delete endpoint returns HTTP 204
-  // when the note is deleted successfully.
-  // A missing note returns HTTP 404.
+  // Handle errors returned by the backend.
   if (!response.ok) {
 
-    // I am reading the error returned by FastAPI.
     const errorData = await response.json();
 
-    // I am throwing a meaningful error message.
     throw new Error(
-      errorData.detail || `Failed to delete note (${response.status})`
+      errorData.detail ||
+      `Failed to delete note (${response.status})`
     );
   }
 
 
-  // HTTP 204 means that the request was successful
-  // but the server does not return a response body.
+  // The API returns 204 No Content after deletion,
+  // so there is no JSON response to parse.
   return true;
 }

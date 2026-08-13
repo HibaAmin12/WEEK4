@@ -1,45 +1,25 @@
 // ==========================================================
-// Create / Edit Note Page
+// Create Note Page
 // ==========================================================
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-import {
-  createNote,
-  updateNote,
-} from "../services/notes";
-
+import { createNote } from "../services/notes";
 import { useAuth } from "../context/AuthContext";
 
-function CreateNote({ editNote, onBack }) {
+// Handles creation of a new note for the authenticated user.
+function CreateNote({ onBack, onCreated }) {
 
   const { token } = useAuth();
 
+  // Form fields and request status.
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  useEffect(() => {
-
-    if (editNote) {
-
-      setTitle(editNote.title || "");
-      setBody(editNote.body || "");
-
-    } else {
-
-      setTitle("");
-      setBody("");
-    }
-
-    setError("");
-    setSuccess("");
-
-  }, [editNote]);
-
+  // Validate the form and submit the note to the API.
   async function handleSubmit(event) {
 
     event.preventDefault();
@@ -47,6 +27,7 @@ function CreateNote({ editNote, onBack }) {
     setError("");
     setSuccess("");
 
+    // Prevent submission when required fields are empty.
     if (!title.trim() || !body.trim()) {
 
       setError(
@@ -56,6 +37,7 @@ function CreateNote({ editNote, onBack }) {
       return;
     }
 
+    // Ensure the user is authenticated before creating a note.
     if (!token) {
 
       setError(
@@ -69,44 +51,31 @@ function CreateNote({ editNote, onBack }) {
 
       setLoading(true);
 
+      // Prepare the payload expected by the backend.
       const noteData = {
         title: title.trim(),
         body: body.trim(),
         category_id: null,
       };
 
-      if (editNote) {
+      // Send the authenticated request to the Notes API.
+      const newNote = await createNote(
+        token,
+        noteData
+      );
 
-        const updatedNote =
-          await updateNote(
-            token,
-            editNote.id,
-            noteData
-          );
+      setSuccess(
+        `Note "${newNote.title}" created successfully.`
+      );
 
-        setSuccess(
-          `Note "${updatedNote.title}" updated successfully.`
-        );
-
-        if (onBack) {
-          onBack();
-        }
-
-      } else {
-
-        const newNote =
-          await createNote(
-            token,
-            noteData
-          );
-
-        setSuccess(
-          `Note "${newNote.title}" created successfully.`
-        );
-
-        setTitle("");
-        setBody("");
+      // Notify the parent component so it can update its state.
+      if (onCreated) {
+        onCreated(newNote);
       }
+
+      // Reset the form after successful creation.
+      setTitle("");
+      setBody("");
 
     } catch (err) {
 
@@ -122,54 +91,64 @@ function CreateNote({ editNote, onBack }) {
   }
 
   return (
+
     <div className="create-note-page">
 
       <div className="create-note-card">
 
+        {/* Page heading and note creation context */}
         <div className="create-note-header">
 
           <div className="create-note-icon">
-            {editNote ? "✎" : "+"}
+            +
           </div>
 
           <div>
 
             <span className="create-note-label">
-              {editNote
-                ? "EDIT NOTE"
-                : "NEW NOTE"}
+              NEW NOTE
             </span>
 
             <h1>
-              {editNote
-                ? "Edit your note"
-                : "Create a new note"}
+              Create a new note
             </h1>
 
             <p>
-              {editNote
-                ? "Make your changes and keep your thoughts up to date."
-                : "Put your thoughts, ideas, and reminders somewhere safe."}
+              Put your thoughts, ideas, and reminders
+              somewhere safe.
             </p>
 
           </div>
 
         </div>
 
+        {/* Display validation or API errors */}
         {error && (
+
           <div className="note-error">
+
             <span>!</span>
+
             {error}
+
           </div>
+
         )}
 
+        {/* Display confirmation after successful creation */}
         {success && (
+
           <div className="success-message">
+
             <span>✓</span>
+
             {success}
+
           </div>
+
         )}
 
+        {/* Note creation form */}
         <form
           className="note-form"
           onSubmit={handleSubmit}
@@ -220,6 +199,7 @@ function CreateNote({ editNote, onBack }) {
 
           </div>
 
+          {/* Submit and navigation actions */}
           <div className="note-form-actions">
 
             <button
@@ -227,18 +207,21 @@ function CreateNote({ editNote, onBack }) {
               className="note-submit-button"
               disabled={loading}
             >
-              {loading
-                ? editNote
-                  ? "Updating..."
-                  : "Creating..."
-                : editNote
-                  ? "Save Changes"
-                  : "Create Note"}
 
-              {!loading && <span>→</span>}
+              {loading
+                ? "Creating..."
+                : "Create Note"}
+
+              {!loading && (
+                <span>
+                  →
+                </span>
+              )}
+
             </button>
 
             {onBack && (
+
               <button
                 type="button"
                 className="back-button"
@@ -247,6 +230,7 @@ function CreateNote({ editNote, onBack }) {
               >
                 Cancel
               </button>
+
             )}
 
           </div>

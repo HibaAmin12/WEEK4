@@ -6,6 +6,7 @@ import { useState } from "react";
 
 import { updateNote } from "../services/notes";
 
+// Handles editing and updating an existing note.
 function EditNote({
   note,
   token,
@@ -13,6 +14,7 @@ function EditNote({
   onCancel,
 }) {
 
+  // Initialize form fields with the selected note's data.
   const [title, setTitle] = useState(
     note.title || ""
   );
@@ -21,15 +23,20 @@ function EditNote({
     note.body || ""
   );
 
+  // Manage request status and user feedback.
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
+  // Validate and submit the updated note.
   async function handleSubmit(event) {
 
     event.preventDefault();
 
     setError("");
+    setSuccess("");
 
+    // Prevent submission when required fields are empty.
     if (!title.trim() || !body.trim()) {
 
       setError(
@@ -39,21 +46,42 @@ function EditNote({
       return;
     }
 
+    // Ensure the request has a valid authentication token.
+    if (!token) {
+
+      setError(
+        "Authentication token is missing. Please login again."
+      );
+
+      return;
+    }
+
     try {
 
       setLoading(true);
 
-      const updatedNote =
-        await updateNote(
-          token,
-          note.id,
-          {
-            title: title.trim(),
-            body: body.trim(),
-          }
-        );
+      // Prepare the updated data expected by the API.
+      const noteData = {
+        title: title.trim(),
+        body: body.trim(),
+        category_id: note.category_id ?? null,
+      };
 
-      onUpdated(updatedNote);
+      // Send the authenticated update request.
+      const updatedNote = await updateNote(
+        token,
+        note.id,
+        noteData
+      );
+
+      setSuccess(
+        `Note "${updatedNote.title}" updated successfully.`
+      );
+
+      // Notify the parent component about the updated note.
+      if (onUpdated) {
+        onUpdated(updatedNote);
+      }
 
     } catch (err) {
 
@@ -69,10 +97,12 @@ function EditNote({
   }
 
   return (
+
     <div className="create-note-page">
 
       <div className="create-note-card">
 
+        {/* Page heading and editing context */}
         <div className="create-note-header">
 
           <div className="create-note-icon">
@@ -98,13 +128,33 @@ function EditNote({
 
         </div>
 
+        {/* Display validation or API errors */}
         {error && (
+
           <div className="note-error">
+
             <span>!</span>
+
             {error}
+
           </div>
+
         )}
 
+        {/* Display confirmation after successful update */}
+        {success && (
+
+          <div className="success-message">
+
+            <span>✓</span>
+
+            {success}
+
+          </div>
+
+        )}
+
+        {/* Form for editing the selected note */}
         <form
           className="note-form"
           onSubmit={handleSubmit}
@@ -123,6 +173,7 @@ function EditNote({
               onChange={(event) =>
                 setTitle(event.target.value)
               }
+              placeholder="Give your note a title..."
               disabled={loading}
             />
 
@@ -140,11 +191,13 @@ function EditNote({
               onChange={(event) =>
                 setBody(event.target.value)
               }
+              placeholder="Update your note..."
               disabled={loading}
             />
 
           </div>
 
+          {/* Save changes or cancel the editing operation */}
           <div className="note-form-actions">
 
             <button
@@ -152,11 +205,17 @@ function EditNote({
               className="note-submit-button"
               disabled={loading}
             >
+
               {loading
                 ? "Saving..."
                 : "Save Changes"}
 
-              {!loading && <span>→</span>}
+              {!loading && (
+                <span>
+                  →
+                </span>
+              )}
+
             </button>
 
             <button

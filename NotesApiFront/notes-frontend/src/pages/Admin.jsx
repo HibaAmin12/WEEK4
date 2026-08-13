@@ -1,5 +1,5 @@
 // ==========================================================
-// Admin Panel
+// Admin Dashboard
 // ==========================================================
 
 import { useEffect, useState } from "react";
@@ -7,14 +7,17 @@ import { useEffect, useState } from "react";
 import { getAllNotesForAdmin } from "../services/admin";
 import { useAuth } from "../context/AuthContext";
 
+// Displays application-wide notes for authenticated administrators.
 function Admin({ onBack }) {
 
   const { token } = useAuth();
 
+  // Store fetched notes and manage loading/error states.
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // Fetch all notes when a valid authentication token is available.
   useEffect(() => {
 
     async function loadAllNotes() {
@@ -24,16 +27,14 @@ function Admin({ onBack }) {
         setError("");
         setLoading(true);
 
-        const data =
-          await getAllNotesForAdmin(token);
+        const data = await getAllNotesForAdmin(token);
 
         setNotes(data);
 
       } catch (err) {
 
         setError(
-          err.message ||
-          "Failed to load admin notes."
+          err.message || "Failed to load admin notes."
         );
 
       } finally {
@@ -48,6 +49,7 @@ function Admin({ onBack }) {
 
   }, [token]);
 
+  // Show a loading state while admin data is being fetched.
   if (loading) {
 
     return (
@@ -78,6 +80,7 @@ function Admin({ onBack }) {
 
       <div className="admin-container">
 
+        {/* Dashboard heading and navigation */}
         <div className="admin-header">
 
           <div>
@@ -108,6 +111,7 @@ function Admin({ onBack }) {
 
         </div>
 
+        {/* Display API errors when note retrieval fails */}
         {error && (
           <div className="admin-error">
             <span>!</span>
@@ -115,6 +119,7 @@ function Admin({ onBack }) {
           </div>
         )}
 
+        {/* Display basic application statistics */}
         {!error && (
           <div className="admin-stats">
 
@@ -161,6 +166,7 @@ function Admin({ onBack }) {
           </div>
         )}
 
+        {/* Empty state when the API returns no notes */}
         {notes.length === 0 && !error && (
           <div className="admin-empty">
 
@@ -180,6 +186,7 @@ function Admin({ onBack }) {
           </div>
         )}
 
+        {/* Render all notes returned by the admin API */}
         {notes.length > 0 && !error && (
           <div className="admin-notes">
 
@@ -230,6 +237,7 @@ function Admin({ onBack }) {
                     {note.body}
                   </p>
 
+                  {/* Display note ownership and category information */}
                   <div className="admin-note-meta">
 
                     <div>

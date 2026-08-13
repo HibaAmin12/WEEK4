@@ -1,7 +1,3 @@
-// ==========================================================
-// Notes Page
-// ==========================================================
-
 import { useEffect, useState } from "react";
 
 import {
@@ -11,17 +7,30 @@ import {
 
 import { useAuth } from "../context/AuthContext";
 
-function Notes({ onCreateNote, onEditNote }) {
+
+// Notes workspace component.
+// Fetches, displays, edits, and deletes the authenticated user's notes.
+function Notes({
+  onCreateNote,
+  onEditNote,
+}) {
 
   const { token } = useAuth();
 
+
+  // Store notes returned by the backend.
   const [notes, setNotes] = useState([]);
+
+  // Manage loading and API error states.
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // Track the note selected for deletion.
   const [noteToDelete, setNoteToDelete] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
+
+  // Fetch the user's notes whenever the authentication token changes.
   useEffect(() => {
 
     async function loadNotes() {
@@ -31,6 +40,7 @@ function Notes({ onCreateNote, onEditNote }) {
         setError("");
         setLoading(true);
 
+        // Request notes from the protected API.
         const data = await getNotes(token);
 
         setNotes(data);
@@ -45,26 +55,37 @@ function Notes({ onCreateNote, onEditNote }) {
       } finally {
 
         setLoading(false);
+
       }
+
     }
 
+    // Only fetch notes when the user is authenticated.
     if (token) {
       loadNotes();
     }
 
   }, [token]);
 
+
+  // Open the confirmation dialog for a selected note.
   function openDeleteModal(note) {
     setNoteToDelete(note);
   }
 
+
+  // Close the delete dialog unless deletion is in progress.
   function closeDeleteModal() {
 
     if (!deleteLoading) {
       setNoteToDelete(null);
     }
+
   }
 
+
+  // Delete the selected note through the API
+  // and immediately update the local UI state.
   async function handleDelete() {
 
     if (!noteToDelete) {
@@ -76,11 +97,13 @@ function Notes({ onCreateNote, onEditNote }) {
       setError("");
       setDeleteLoading(true);
 
+      // Send the authenticated delete request.
       await deleteNote(
         token,
         noteToDelete.id
       );
 
+      // Remove the deleted note without refetching the entire list.
       setNotes((currentNotes) =>
         currentNotes.filter(
           (note) =>
@@ -100,12 +123,17 @@ function Notes({ onCreateNote, onEditNote }) {
     } finally {
 
       setDeleteLoading(false);
+
     }
+
   }
 
+
+  // Display a loading state while notes are being fetched.
   if (loading) {
 
     return (
+
       <div className="notes-page">
 
         <div className="notes-loading">
@@ -125,12 +153,18 @@ function Notes({ onCreateNote, onEditNote }) {
         </div>
 
       </div>
+
     );
+
   }
 
+
   return (
+
     <div className="notes-page">
 
+
+      {/* Workspace header and primary action. */}
       <div className="notes-header">
 
         <div className="notes-title-area">
@@ -150,31 +184,41 @@ function Notes({ onCreateNote, onEditNote }) {
 
         </div>
 
+
         <button
           type="button"
           className="create-note-button"
           onClick={onCreateNote}
         >
+
           <span className="create-note-icon">
             +
           </span>
 
           New Note
+
         </button>
 
       </div>
 
+
+      {/* Display note count when the collection is not empty. */}
       {notes.length > 0 && (
+
         <div className="notes-toolbar">
 
           <div className="notes-count">
-            <strong>{notes.length}</strong>
+
+            <strong>
+              {notes.length}
+            </strong>
 
             <span>
               {notes.length === 1
                 ? "note"
                 : "notes"}
             </span>
+
           </div>
 
           <span className="notes-helper">
@@ -182,16 +226,29 @@ function Notes({ onCreateNote, onEditNote }) {
           </span>
 
         </div>
+
       )}
 
+
+      {/* Display API or application errors. */}
       {error && (
+
         <div className="notes-error">
+
           <span>!</span>
-          <p>{error}</p>
+
+          <p>
+            {error}
+          </p>
+
         </div>
+
       )}
 
+
+      {/* Provide an onboarding state when no notes exist. */}
       {notes.length === 0 && !error && (
+
         <div className="empty-notes">
 
           <div className="empty-notes-icon">
@@ -217,14 +274,23 @@ function Notes({ onCreateNote, onEditNote }) {
             className="empty-create-button"
             onClick={onCreateNote}
           >
-            <span>+</span>
+
+            <span>
+              +
+            </span>
+
             Create Your First Note
+
           </button>
 
         </div>
+
       )}
 
+
+      {/* Render the authenticated user's notes as reusable cards. */}
       {notes.length > 0 && (
+
         <div className="notes-grid">
 
           {notes.map((note, index) => (
@@ -236,6 +302,8 @@ function Notes({ onCreateNote, onEditNote }) {
 
               <div className="note-card-accent"></div>
 
+
+              {/* Card metadata. */}
               <div className="note-card-top">
 
                 <span className="note-number">
@@ -248,6 +316,8 @@ function Notes({ onCreateNote, onEditNote }) {
 
               </div>
 
+
+              {/* Note title and content. */}
               <div className="note-card-content">
 
                 <h2>
@@ -260,14 +330,18 @@ function Notes({ onCreateNote, onEditNote }) {
 
               </div>
 
+
+              {/* Note metadata and available actions. */}
               <div className="note-card-footer">
 
                 <span className="note-id">
                   Note #{note.id}
                 </span>
 
+
                 <div className="note-actions">
 
+                  {/* Open the note editor. */}
                   <button
                     type="button"
                     className="note-edit-button"
@@ -275,10 +349,17 @@ function Notes({ onCreateNote, onEditNote }) {
                       onEditNote(note)
                     }
                   >
-                    <span>✎</span>
+
+                    <span>
+                      ✎
+                    </span>
+
                     Edit
+
                   </button>
 
+
+                  {/* Open the delete confirmation dialog. */}
                   <button
                     type="button"
                     className="note-delete-button"
@@ -286,8 +367,13 @@ function Notes({ onCreateNote, onEditNote }) {
                       openDeleteModal(note)
                     }
                   >
-                    <span>⌫</span>
+
+                    <span>
+                      ⌫
+                    </span>
+
                     Delete
+
                   </button>
 
                 </div>
@@ -295,12 +381,17 @@ function Notes({ onCreateNote, onEditNote }) {
               </div>
 
             </article>
+
           ))}
 
         </div>
+
       )}
 
+
+      {/* Confirm deletion before permanently removing a note. */}
       {noteToDelete && (
+
         <div
           className="delete-modal-overlay"
           onClick={closeDeleteModal}
@@ -313,6 +404,7 @@ function Notes({ onCreateNote, onEditNote }) {
             }
           >
 
+            {/* Prevent accidental closure while deletion is running. */}
             <button
               type="button"
               className="modal-close-button"
@@ -321,6 +413,7 @@ function Notes({ onCreateNote, onEditNote }) {
             >
               ×
             </button>
+
 
             <div className="delete-modal-icon">
               🗑️
@@ -347,6 +440,8 @@ function Notes({ onCreateNote, onEditNote }) {
               This action cannot be undone.
             </small>
 
+
+            {/* Confirmation and cancellation actions. */}
             <div className="delete-modal-actions">
 
               <button
@@ -358,15 +453,18 @@ function Notes({ onCreateNote, onEditNote }) {
                 Keep Note
               </button>
 
+
               <button
                 type="button"
                 className="delete-confirm-button"
                 onClick={handleDelete}
                 disabled={deleteLoading}
               >
+
                 {deleteLoading
                   ? "Deleting..."
                   : "Yes, Delete"}
+
               </button>
 
             </div>
@@ -374,10 +472,14 @@ function Notes({ onCreateNote, onEditNote }) {
           </div>
 
         </div>
+
       )}
 
     </div>
+
   );
+
 }
+
 
 export default Notes;
